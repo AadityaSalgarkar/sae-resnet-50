@@ -14,7 +14,7 @@ class SaeConfig(Serializable):
     normalize_decoder: bool = True
     """Normalize the decoder weights to have unit norm."""
 
-    k: int = 1
+    k: int = 64
     """Number of nonzero features."""
 
     signed: bool = False
