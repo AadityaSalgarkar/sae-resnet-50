@@ -12,3 +12,16 @@ The dataset is taken from ```ILSVRC/imagenet-1k```.
 ## Loss for various k
 
 ![Log loss curves for k=1,2,4,8,16,32](figures/loss_vs_step_for_k.png)
+
+
+## Shapes of table 
+
+
+| Layer Name | Output Shape |
+|------------|---------------|
+| maxpool | [1, 64, 56, 56] |
+| layer1 | [1, 256, 56, 56] |
+| layer2 | [1, 512, 28, 28] |
+| layer3 | [1, 1024, 14, 14] |
+| layer4 | [1, 2048, 7, 7] |
+

@@ -8,7 +8,7 @@ class SaeConfig(Serializable):
     Configuration for training a sparse autoencoder on a language model.
     """
 
-    expansion_factor: int = 1
+    expansion_factor: int = 2
     """Multiple of the input dimension to use as the SAE dimension."""
 
     normalize_decoder: bool = True
@@ -22,7 +22,11 @@ class SaeConfig(Serializable):
 
 @dataclass
 class TrainConfig(Serializable):
-    sae: SaeConfig
+    num_channels : int = 3 
+    """ Number of channels in the image"""
+
+    image_size : int = 224
+    """ Size of the image"""
 
     batch_size: int = 8
     """Batch size measured in sequences."""
@@ -33,7 +37,7 @@ class TrainConfig(Serializable):
     micro_acc_steps: int = 1
     """Chunk the activations into this number of microbatches for SAE training."""
 
-    lr: float | None = 0.00001 / 2**16
+    lr: float | None = None
     """Base LR. If None, it is automatically chosen based on the number of latents."""
 
     lr_warmup_steps: int = 1000
