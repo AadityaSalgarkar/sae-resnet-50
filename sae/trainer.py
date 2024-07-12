@@ -55,14 +55,19 @@ class SaeTrainerModule(pl.LightningModule):
             batch_size = train_config.batch_size
             image_size = train_config.image_size
             num_channels = train_config.num_channels
-            x_test = torch.randn(batch_size, train_config.num_channels, train_config.image_size, train_config.image_size).to(self.device_param)
+            x_test = torch.randn(
+                batch_size,
+                train_config.num_channels,
+                train_config.image_size,
+                train_config.image_size,
+            ).to(self.device_param)
             self.model(x_test)
         print("Initialization complete")
 
     def _register_hook(self):
         def hook(module, input, output):
             self.activation = output.detach()[:, self.channel_index, :, :].reshape(
-                1, -1
+                self.train_config.batch_size, -1
             )
 
         for name, module in self.model.named_modules():
@@ -101,7 +106,7 @@ class SaeTrainerModule(pl.LightningModule):
     def configure_optimizers(self):
         if self.sae is None:
             self._init_sae()
-        if (lr := self.train_config.lr) is None :
-            d = self.sae.d_in 
+        if (lr := self.train_config.lr) is None:
+            d = self.sae.d_in
             lr = 0.0002 / (d ** (0.5))
-        return Adam(self.sae.parameters(), lr= lr)
+        return Adam(self.sae.parameters(), lr=lr)

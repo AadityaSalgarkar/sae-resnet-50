@@ -22,14 +22,17 @@ class SaeConfig(Serializable):
 
 @dataclass
 class TrainConfig(Serializable):
-    num_channels : int = 3 
+    num_channels: int = 3
     """ Number of channels in the image"""
 
-    image_size : int = 224
+    image_size: int = 224
     """ Size of the image"""
 
-    batch_size: int = 8
+    batch_size: int = 8 * 8 * 4
     """Batch size measured in sequences."""
+
+    num_workers: int = 15
+    """ Number of workers used for dataloader"""
 
     grad_acc_steps: int = 1
     """Number of steps over which to accumulate gradients."""

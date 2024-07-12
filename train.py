@@ -9,30 +9,9 @@ from datasets import load_dataset
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import random_split
+from dataclasses import asdict
 
 DATA = "ILSVRC/imagenet-1k"
-
-
-def custom_collate(batch):
-    transform = transforms.Compose(
-        [
-            transforms.Grayscale(num_output_channels=3),
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
-            transforms.ToTensor(),
-        ]
-    )
-    imgs = [transform(item["image"]) for item in batch]
-    targets = [item["label"] for item in batch]
-
-    # Stack the tensors
-    imgs = torch.stack(imgs)
-    targets = torch.tensor(targets)
-
-    return imgs, targets
-
-
-imagenet_data = load_dataset(DATA, split="train", trust_remote_code=True)
 
 
 """
@@ -59,7 +38,29 @@ imagenet_data_val = load_dataset(DATA, split="validation", trust_remote_code=Tru
 model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
 sae_config = SaeConfig()
 train_config = TrainConfig()
-sae_trainer = SaeTrainerModule(model, "layer3:1012", 0, sae_config, train_config= train_config, max_batches=25000)
+sae_trainer = SaeTrainerModule(
+    model, "layer3:1012", 0, sae_config, train_config=train_config
+)
+
+
+def custom_collate(batch):
+    transform = transforms.Compose(
+        [
+            transforms.Grayscale(num_output_channels=3),
+            transforms.Resize(256),
+            transforms.CenterCrop(train_config.image_size),
+            transforms.ToTensor(),
+        ]
+    )
+    imgs = [transform(item["image"]) for item in batch]
+    targets = [item["label"] for item in batch]
+
+    # Stack the tensors
+    imgs = torch.stack(imgs)
+    targets = torch.tensor(targets)
+
+    return imgs, targets
+
 
 # dataloaders
 train_dataloader = DataLoader(
@@ -67,17 +68,19 @@ train_dataloader = DataLoader(
     batch_size=train_config.batch_size,
     shuffle=True,
     collate_fn=custom_collate,
-    num_workers=15,
+    num_workers=train_config.num_workers,
 )
 val_dataloader = DataLoader(
     imagenet_data_val,
     batch_size=train_config.batch_size,
     shuffle=False,
     collate_fn=custom_collate,
-    num_workers=15,
+    num_workers=train_config.num_workers,
 )
 # Setup wandb logger
-wandb_logger = WandbLogger(project="sae-test", save_code=True)
+wandb_logger = WandbLogger(
+    project="sae-test", config=asdict(train_config), save_code=True
+)
 
 # Setup checkpoint callback
 checkpoint_callback = ModelCheckpoint(
@@ -89,7 +92,12 @@ checkpoint_callback = ModelCheckpoint(
 )
 
 # Initialize Trainer
-trainer = pl.Trainer(max_epochs=1, logger=wandb_logger, callbacks=[checkpoint_callback])
+trainer = pl.Trainer(
+    max_epochs=1,
+    logger=wandb_logger,
+    callbacks=[checkpoint_callback],
+    log_every_n_steps=1,
+)
 
 
 # Train the model

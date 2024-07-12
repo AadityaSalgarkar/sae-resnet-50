@@ -9,19 +9,15 @@ To simplify the problem, we train only the activations of ```maxpool``` layer, f
 The dataset is taken from ```ILSVRC/imagenet-1k```.
 
 
-## Loss for various k
-
-![Log loss curves for k=1,2,4,8,16,32](figures/loss_vs_step_for_k.png)
-
 
 ## Table of shapes
 
 
-| Layer Name | Output Shape |
-|------------|---------------|
-| maxpool | [1, 64, 56, 56] |
-| layer1 | [1, 256, 56, 56] |
-| layer2 | [1, 512, 28, 28] |
-| layer3 | [1, 1024, 14, 14] |
-| layer4 | [1, 2048, 7, 7] |
+| Layer Name | Output Shape | Channel size | 
+|------------|---------------|-------------|
+| maxpool | [1, 64, 56, 56] | 3136 | 
+| layer1 | [1, 256, 56, 56] | 3136 |
+| layer2 | [1, 512, 28, 28] | 784 |
+| layer3 | [1, 1024, 14, 14] | 196 | 
+| layer4 | [1, 2048, 7, 7] | 49 |
 
