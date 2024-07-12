@@ -91,7 +91,18 @@ checkpoint_callback = ModelCheckpoint(
     mode="min",
 )
 
-# Initialize Trainer
+# Initialize Trainer for overfitting
+"""
+trainer = pl.Trainer(
+    max_epochs=-1,
+    overfit_batches=1,
+    logger=wandb_logger,
+    callbacks=[checkpoint_callback],
+    log_every_n_steps=1,
+    check_val_every_n_epoch=128
+)
+"""
+# Initialize Trainer for main training 
 trainer = pl.Trainer(
     max_epochs=1,
     logger=wandb_logger,

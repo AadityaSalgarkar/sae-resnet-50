@@ -108,5 +108,5 @@ class SaeTrainerModule(pl.LightningModule):
             self._init_sae()
         if (lr := self.train_config.lr) is None:
             d = self.sae.d_in
-            lr = 0.0002 / (d ** (0.5))
+            lr = 0.00001
         return Adam(self.sae.parameters(), lr=lr)

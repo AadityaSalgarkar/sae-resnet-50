@@ -8,13 +8,13 @@ class SaeConfig(Serializable):
     Configuration for training a sparse autoencoder on a language model.
     """
 
-    expansion_factor: int = 2
+    expansion_factor: int = 1
     """Multiple of the input dimension to use as the SAE dimension."""
 
     normalize_decoder: bool = True
     """Normalize the decoder weights to have unit norm."""
 
-    k: int = 4
+    k: int = 16
     """Number of nonzero features."""
 
     signed: bool = False
@@ -28,10 +28,10 @@ class TrainConfig(Serializable):
     image_size: int = 224
     """ Size of the image"""
 
-    batch_size: int = 8 * 8 * 4
+    batch_size: int = 8 
     """Batch size measured in sequences."""
 
-    num_workers: int = 15
+    num_workers: int = 0
     """ Number of workers used for dataloader"""
 
     grad_acc_steps: int = 1
