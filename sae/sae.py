@@ -195,7 +195,7 @@ class Sae(nn.Module):
         e = sae_out - x
 
         # Used as a denominator for putting everything on a reasonable scale
-        total_variance = (x - x.mean(0)).pow(2).sum(0)
+        total_variance = (x - x.mean(0)).pow(2).sum(0) + 10 ** (-9)
 
         # Second decoder pass for AuxK loss
         if dead_mask is not None and (num_dead := int(dead_mask.sum())) > 0:
