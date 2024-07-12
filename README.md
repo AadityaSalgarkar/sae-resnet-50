@@ -14,7 +14,7 @@ The dataset is taken from ```ILSVRC/imagenet-1k```.
 ![Log loss curves for k=1,2,4,8,16,32](figures/loss_vs_step_for_k.png)
 
 
-## Shapes of table 
+## Table of shapes
 
 
 | Layer Name | Output Shape |
