@@ -94,6 +94,8 @@ class SaeTrainerModule(pl.LightningModule):
         output = self(inputs)
         loss = torch.mean((output.sae_out - self.activation) ** 2)
         self.log("train_loss", loss)
+        self.log("auxk_loss", output.auxk_loss)
+        self.log("fvu", output.fvu)
         return loss
 
     def validation_step(self, batch, batch_idx):
