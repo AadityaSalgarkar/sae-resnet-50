@@ -28,7 +28,7 @@ class TrainConfig(Serializable):
     image_size: int = 224
     """ Size of the image"""
 
-    batch_size: int = 8 
+    batch_size: int = 8
     """Batch size measured in sequences."""
 
     num_workers: int = 0

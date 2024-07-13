@@ -44,9 +44,12 @@ class SaeTrainerModule(pl.LightningModule):
         self.channel_index = int(self.channel_index)
         self.filter_size = 14
 
-        assert self.channel_index < self.filter_size * self.filter_size 
+        assert self.channel_index < self.filter_size * self.filter_size
 
-        self.row , self.col = self.channel_index // self.filter_size , self.channel_index % self.filter_size
+        self.row, self.col = (
+            self.channel_index // self.filter_size,
+            self.channel_index % self.filter_size,
+        )
         self.sae_config = sae_config
         self.sae = None
         self.activation = None
@@ -71,7 +74,7 @@ class SaeTrainerModule(pl.LightningModule):
 
     def _register_hook(self):
         def hook(module, input, output):
-            self.activation = output.detach()[:, : ,self.row , self.col].reshape(
+            self.activation = output.detach()[:, :, self.row, self.col].reshape(
                 self.train_config.batch_size, -1
             )
 
@@ -128,12 +131,17 @@ class SaeTrainerModule(pl.LightningModule):
             self.top_k_losses.append((loss.item(), batch))
             self.top_k_losses.sort(key=lambda x: x[0], reverse=True)
 
-
     def on_train_epoch_end(self):
         for i, (loss, batch) in enumerate(self.top_k_losses):
             self.log(f"top_{i+1}_loss", loss)
             # Log the image for this top loss
             images, _ = batch
             for i, image in enumerate(images):
-                self.logger.experiment.log({"top_loss_image": [wandb.Image(image, caption=f"Top {i+1} Loss Image")]})
+                self.logger.experiment.log(
+                    {
+                        "top_loss_image": [
+                            wandb.Image(image, caption=f"Top {i+1} Loss Image")
+                        ]
+                    }
+                )
         self.top_k_losses = []  # Reset for next epoch
