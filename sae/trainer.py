@@ -30,11 +30,9 @@ class SaeTrainerModule(pl.LightningModule):
         self,
         model,
         layer_name,
-        channel_index,
         sae_config,
         train_config,
         device="cuda",
-        max_batches=25000,
     ):
         super().__init__()
         self.model = model.to(device)
@@ -44,8 +42,12 @@ class SaeTrainerModule(pl.LightningModule):
         self.device_param = torch.device(device)
         self.layer_name, self.channel_index = layer_name.split(":")
         self.channel_index = int(self.channel_index)
+        self.filter_size = 14
+
+        assert self.channel_index < self.filter_size * self.filter_size 
+
+        self.row , self.col = self.channel_index // self.filter_size , self.channel_index % self.filter_size
         self.sae_config = sae_config
-        self.max_batches = max_batches
         self.sae = None
         self.activation = None
         self.train_config = train_config
@@ -66,7 +68,7 @@ class SaeTrainerModule(pl.LightningModule):
 
     def _register_hook(self):
         def hook(module, input, output):
-            self.activation = output.detach()[:, self.channel_index, :, :].reshape(
+            self.activation = output.detach()[:, : ,self.row , self.col].reshape(
                 self.train_config.batch_size, -1
             )
 

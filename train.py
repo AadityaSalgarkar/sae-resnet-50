@@ -39,7 +39,10 @@ model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
 sae_config = SaeConfig()
 train_config = TrainConfig()
 sae_trainer = SaeTrainerModule(
-    model, "layer3:1012", 0, sae_config, train_config=train_config
+    model=model,
+    layer_name="layer3:112",
+    sae_config=sae_config,
+    train_config=train_config,
 )
 
 
@@ -102,12 +105,14 @@ trainer = pl.Trainer(
     check_val_every_n_epoch=128
 )
 """
-# Initialize Trainer for main training 
+# Initialize Trainer for main training
 trainer = pl.Trainer(
     max_epochs=1,
     logger=wandb_logger,
     callbacks=[checkpoint_callback],
     log_every_n_steps=1,
+    val_check_interval=2000,  # Run validation every 2000 training steps
+    # limit_val_batches=128,  # Limit validation to 128 batches
 )
 
 
