@@ -40,7 +40,7 @@ sae_config = SaeConfig()
 train_config = TrainConfig()
 sae_trainer = SaeTrainerModule(
     model=model,
-    layer_name="layer3:112",
+    layer_name="layer3:1012",
     sae_config=sae_config,
     train_config=train_config,
 )
@@ -111,7 +111,7 @@ trainer = pl.Trainer(
     logger=wandb_logger,
     callbacks=[checkpoint_callback],
     log_every_n_steps=1,
-    val_check_interval=2000,  # Run validation every 2000 training steps
+    # val_check_interval=2000,  # Run validation every 2000 training steps
     # limit_val_batches=128,  # Limit validation to 128 batches
 )
 
