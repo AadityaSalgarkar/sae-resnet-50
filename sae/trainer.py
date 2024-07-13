@@ -64,6 +64,9 @@ class SaeTrainerModule(pl.LightningModule):
                 train_config.image_size,
             ).to(self.device_param)
             self.model(x_test)
+        # Track batch with top k losses
+        self.top_k_losses = []
+        self.top_k = 5  # Number of top losses to track
         print("Initialization complete")
 
     def _register_hook(self):
@@ -98,6 +101,7 @@ class SaeTrainerModule(pl.LightningModule):
         self.log("train_loss", loss)
         self.log("auxk_loss", output.auxk_loss)
         self.log("fvu", output.fvu)
+        self._update_top_k_losses(loss, batch)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -112,5 +116,24 @@ class SaeTrainerModule(pl.LightningModule):
             self._init_sae()
         if (lr := self.train_config.lr) is None:
             d = self.sae.d_in
-            lr = 0.00001
+            lr = 0.000001
         return Adam(self.sae.parameters(), lr=lr)
+
+    def _update_top_k_losses(self, loss, batch):
+        if len(self.top_k_losses) < self.top_k:
+            self.top_k_losses.append((loss.item(), batch))
+            self.top_k_losses.sort(key=lambda x: x[0], reverse=True)
+        elif loss.item() > self.top_k_losses[-1][0]:
+            self.top_k_losses.pop()
+            self.top_k_losses.append((loss.item(), batch))
+            self.top_k_losses.sort(key=lambda x: x[0], reverse=True)
+
+
+    def on_train_epoch_end(self):
+        for i, (loss, batch) in enumerate(self.top_k_losses):
+            self.log(f"top_{i+1}_loss", loss)
+            # Log the image for this top loss
+            images, _ = batch
+            for i, image in enumerate(images):
+                self.logger.experiment.log({"top_loss_image": [wandb.Image(image, caption=f"Top {i+1} Loss Image")]})
+        self.top_k_losses = []  # Reset for next epoch
