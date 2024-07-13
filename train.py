@@ -11,6 +11,7 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from torch.utils.data import random_split
 from dataclasses import asdict
 
+layer_name = "layer3:112"
 DATA = "ILSVRC/imagenet-1k"
 
 
@@ -38,9 +39,13 @@ imagenet_data_val = load_dataset(DATA, split="validation", trust_remote_code=Tru
 model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
 sae_config = SaeConfig()
 train_config = TrainConfig()
+
+print("sae_config", sae_config)
+print("train_config", train_config)
+
 sae_trainer = SaeTrainerModule(
     model=model,
-    layer_name="layer3:1012",
+    layer_name=layer_name,
     sae_config=sae_config,
     train_config=train_config,
 )
@@ -82,13 +87,13 @@ val_dataloader = DataLoader(
 )
 # Setup wandb logger
 wandb_logger = WandbLogger(
-    project="sae-test", config=asdict(train_config), save_code=True
+    project="sae-resnet50", config=asdict(train_config), save_code=True
 )
 
 # Setup checkpoint callback
 checkpoint_callback = ModelCheckpoint(
     dirpath="checkpoints",
-    filename="sae-{epoch:02d}-{val_loss:.2f}",
+    filename=f"sae-{layer_name}",
     save_top_k=3,
     monitor="val_loss",
     mode="min",
